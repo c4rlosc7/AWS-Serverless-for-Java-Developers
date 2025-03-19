@@ -133,7 +133,9 @@ Default output format [None]: Default is JSON, press enter
 
 [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-welcome.html)
 
-### Create new project with SAM
+## Let's go to practice, create new project with SAM
+
+### Init sam project with the next command, and answer the next questions
 
 ```terminal
 > sam init
@@ -244,6 +246,241 @@ Commands you can use next
 [*] Validate SAM template: cd photo-app-users-rest-api-sam && sam validate
 [*] Test Function in the Cloud: cd photo-app-users-rest-api-sam && sam sync --stack-name {stack-name} --watch
 ```
+
+### Build sam project
+
+Once the project is created typing the next command.
+
+```terminal
+> sam build
+Starting Build use cache
+Cache is invalid, running build and copying resources for following functions (PostHandlerLambdaFunction)
+Building codeuri:
+/******/*****/***/*************/******************/photo-app-users-rest-api-sam
+/PhotoAppUsersApi runtime: java21 architecture: x86_64 functions: PostHandlerLambdaFunction
+/opt/homebrew/bin/mvn is using a JVM with major version 23 which is newer than 21 that is supported by AWS Lambda. The compiled
+function code may not run in AWS Lambda unless the project has been configured to be compatible with Java 21 using
+'maven.compiler.target' in Maven.
+ Running JavaMavenWorkflow:CopySource
+ Running JavaMavenWorkflow:MavenBuild
+ Running JavaMavenWorkflow:MavenCopyDependency
+ Running JavaMavenWorkflow:MavenCopyArtifacts
+ Running JavaMavenWorkflow:CleanUp
+ Running JavaMavenWorkflow:JavaCopyDependencies
+
+Build Succeeded
+
+Built Artifacts  : .aws-sam/build
+Built Template   : .aws-sam/build/template.yaml
+
+Commands you can use next
+=========================
+[*] Validate SAM template: sam validate
+[*] Invoke Function: sam local invoke
+[*] Test Function in the Cloud: sam sync --stack-name {{stack-name}} --watch
+[*] Deploy: sam deploy --guided
+```
+
+### Invoke local sam project 
+
+Note: Before running the following command, validate that Docker is running.
+
+```terminal
+> sam local invoke PostHandlerLambdaFunction --event events/event.json
+Invoking com.example.aws.photoapp.users.PostHandler::handleRequest (java21)
+Local image was not found.
+Removing rapid images for repo public.ecr.aws/sam/emulation-java21
+Building image..........................................................................
+Using local image: public.ecr.aws/lambda/java:21-rapid-x86_64.
+
+Mounting /Users/carlosandresmartinez/Documents/DEV/CloudComputer/AWS/Serverless/AWS-Serverless-for-Java-Developers/photo-app-users-rest-api-sam/.aws-sam/build/PostHandlerLambdaFunction as
+/var/task:ro,delegated, inside runtime container
+START RequestId: 5064acb5-ddc6-4b52-8331-f4b62f3c4f4f Version: $LATEST
+END RequestId: 3881791b-d87b-4b93-9074-94d4f903242d
+REPORT RequestId: 3881791b-d87b-4b93-9074-94d4f903242d	Init Duration: 0.26 ms	Duration: 679.27 ms	Billed Duration: 680 ms	Memory Size: 512 MB	Max Memory Used: 512 MB
+{"statusCode": 200, "headers": {"Content-Type": "application/json"}, "body": "{\"firstName\":\"carlos\",\"lastName\":\"martinez\",\"userId\":\"abe89f46-823a-47df-bc0a-9d8f513299f9\"}"}
+```
+
+### Debug mode 
+
+How to start in debug mode in sam project ? Execute the next command.
+
+```terminal 
+> sam local invoke PostHandlerLambdaFunction --event events/event.json -d 5858
+Invoking com.example.aws.photoapp.users.PostHandler::handleRequest (java21)
+Local image is up-to-date
+Using local image: public.ecr.aws/lambda/java:21-rapid-x86_64.
+
+Mounting /Users/carlosandresmartinez/Documents/DEV/CloudComputer/AWS/Serverless/AWS-Serverless-for-Java-Developers/photo-app-users-rest-api-sam/.aws-sam/build/PostHandlerLambdaFunction as
+/var/task:ro,delegated, inside runtime container
+START RequestId: 04a1200d-a4e8-49b2-934f-9fc354eb82d9 Version: $LATEST
+Picked up _JAVA_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,quiet=y,address=*:5858 -XX:MaxHeapSize=2834432k -XX:+UseSerialGC -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -Djava.net.preferIPv4Stack=true
+END RequestId: 5b6b759a-b7d7-468b-96e9-74eb4d7f045c
+REPORT RequestId: 5b6b759a-b7d7-468b-96e9-74eb4d7f045c	Init Duration: 0.24 ms	Duration: 349971.42 ms	Billed Duration: 349972 ms	Memory Size: 512 MB	Max Memory Used: 512 MB
+{"statusCode": 200, "headers": {"Content-Type": "application/json"}, "body": "{\"firstName\":\"carlos\",\"lastName\":\"martinez\",\"userId\":\"6e52b71b-a831-45ac-af72-3402bc96ea7d\"}"}
+```
+
+### Debug configurations intellij
+
+![](assets/settings-debug-intellij.png)
+
+### Deploy sam project
+
+```terminal 
+> sam deploy --guided
+
+Configuring SAM deploy
+======================
+
+	Looking for config file [samconfig.toml] :  Found
+	Reading default arguments  :  Success
+
+	Setting default arguments for 'sam deploy'
+	=========================================
+	Stack Name [photo-app-users-rest-api-sam]: PhotoAppUsersRestAPI
+	AWS Region [us-east-1]:
+	#Shows you resources changes to be deployed and require a 'Y' to initiate deploy
+	Confirm changes before deploy [Y/n]: Y
+	#SAM needs permission to be able to create roles to connect to the resources in your template
+	Allow SAM CLI IAM role creation [Y/n]: Y
+	#Preserves the state of previously provisioned resources when an operation fails
+	Disable rollback [y/N]: y
+	PostHandlerLambdaFunction has no authentication. Is this okay? [y/N]: y
+	Save arguments to configuration file [Y/n]: Y
+	SAM configuration file [samconfig.toml]:
+	SAM configuration environment [default]:
+
+	Looking for resources needed for deployment:
+	Creating the required resources...
+	Successfully created!
+
+	Managed S3 bucket: aws-sam-cli-managed-default-samclisourcebucket-tn4afptmyrcv
+	A different default S3 bucket can be set in samconfig.toml and auto resolution of buckets turned off by setting resolve_s3=False
+
+	Saved arguments to config file
+	Running 'sam deploy' for future deployments will use the parameters saved above.
+	The above parameters can be changed by modifying samconfig.toml
+	Learn more about samconfig.toml syntax at
+	https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-config.html
+
+	Uploading to PhotoAppUsersRestAPI/574e372235e779dedb7c43d0d197c748  1142190 / 1142190  (100.00%)
+
+	Deploying with following values
+	===============================
+	Stack name                   : PhotoAppUsersRestAPI
+	Region                       : us-east-1
+	Confirm changeset            : True
+	Disable rollback             : True
+	Deployment s3 bucket         : aws-sam-cli-managed-default-samclisourcebucket-tn4afptmyrcv
+	Capabilities                 : ["CAPABILITY_IAM"]
+	Parameter overrides          : {}
+	Signing Profiles             : {}
+
+Initiating deployment
+=====================
+
+	Uploading to PhotoAppUsersRestAPI/ab678e58cec260889c50e74cfdd5e3c8.template  1386 / 1386  (100.00%)
+
+
+Waiting for changeset to be created..
+
+CloudFormation stack changeset
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Operation                                      LogicalResourceId                              ResourceType                                   Replacement
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
++ Add                                          PostHandlerLambdaFunctionPhotoAppUsersPermis   AWS::Lambda::Permission                        N/A
+                                               sionProd
++ Add                                          PostHandlerLambdaFunctionRole                  AWS::IAM::Role                                 N/A
++ Add                                          PostHandlerLambdaFunction                      AWS::Lambda::Function                          N/A
++ Add                                          ServerlessRestApiDeployment882ab90343          AWS::ApiGateway::Deployment                    N/A
++ Add                                          ServerlessRestApiProdStage                     AWS::ApiGateway::Stage                         N/A
++ Add                                          ServerlessRestApi                              AWS::ApiGateway::RestApi                       N/A
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Changeset created successfully. arn:aws:cloudformation:us-east-1:439994147280:changeSet/samcli-deploy1742425514/16c101dd-9f82-4ece-a746-267d1da4fbb6
+
+
+Previewing CloudFormation changeset before deployment
+======================================================
+Deploy this changeset? [y/N]: y
+
+2025-03-19 18:05:26 - Waiting for stack create/update to complete
+
+CloudFormation events from stack operations (refresh every 5.0 seconds)
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ResourceStatus                                 ResourceType                                   LogicalResourceId                              ResourceStatusReason
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+CREATE_IN_PROGRESS                             AWS::CloudFormation::Stack                     PhotoAppUsersRestAPI                           User Initiated
+CREATE_IN_PROGRESS                             AWS::IAM::Role                                 PostHandlerLambdaFunctionRole                  -
+CREATE_IN_PROGRESS                             AWS::IAM::Role                                 PostHandlerLambdaFunctionRole                  Resource creation Initiated
+CREATE_COMPLETE                                AWS::IAM::Role                                 PostHandlerLambdaFunctionRole                  -
+CREATE_IN_PROGRESS                             AWS::Lambda::Function                          PostHandlerLambdaFunction                      -
+CREATE_IN_PROGRESS                             AWS::Lambda::Function                          PostHandlerLambdaFunction                      Resource creation Initiated
+CREATE_COMPLETE                                AWS::Lambda::Function                          PostHandlerLambdaFunction                      -
+CREATE_IN_PROGRESS                             AWS::ApiGateway::RestApi                       ServerlessRestApi                              -
+CREATE_IN_PROGRESS                             AWS::ApiGateway::RestApi                       ServerlessRestApi                              Resource creation Initiated
+CREATE_COMPLETE                                AWS::ApiGateway::RestApi                       ServerlessRestApi                              -
+CREATE_IN_PROGRESS                             AWS::ApiGateway::Deployment                    ServerlessRestApiDeployment882ab90343          -
+CREATE_IN_PROGRESS                             AWS::Lambda::Permission                        PostHandlerLambdaFunctionPhotoAppUsersPermis   -
+                                                                                              sionProd
+CREATE_IN_PROGRESS                             AWS::Lambda::Permission                        PostHandlerLambdaFunctionPhotoAppUsersPermis   Resource creation Initiated
+                                                                                              sionProd
+CREATE_IN_PROGRESS                             AWS::ApiGateway::Deployment                    ServerlessRestApiDeployment882ab90343          Resource creation Initiated
+CREATE_COMPLETE                                AWS::Lambda::Permission                        PostHandlerLambdaFunctionPhotoAppUsersPermis   -
+                                                                                              sionProd
+CREATE_COMPLETE                                AWS::ApiGateway::Deployment                    ServerlessRestApiDeployment882ab90343          -
+CREATE_IN_PROGRESS                             AWS::ApiGateway::Stage                         ServerlessRestApiProdStage                     -
+CREATE_IN_PROGRESS                             AWS::ApiGateway::Stage                         ServerlessRestApiProdStage                     Resource creation Initiated
+CREATE_COMPLETE                                AWS::ApiGateway::Stage                         ServerlessRestApiProdStage                     -
+CREATE_COMPLETE                                AWS::CloudFormation::Stack                     PhotoAppUsersRestAPI                           -
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+CloudFormation outputs from deployed stack
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Outputs
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Key                 PhotoAppUsersApi
+Description         API Gateway endpoint URL for Prod stage for create a new User
+Value               https://pvoyvu49w2.execute-api.us-east-1.amazonaws.com/Prod/hello/
+
+Key                 PostHandlerLambdaFunction
+Description         PostHandler Lambda Function ARN
+Value               arn:aws:lambda:us-east-1:439994147280:function:PhotoAppUsersRestAPI-PostHandlerLambdaFunction-VmHkj1stXQzc
+
+Key                 PostHandlerLambdaFunctionIamRole
+Description         Implicit IAM Role created for PostHandlerLambdaFunction function
+Value               arn:aws:iam::439994147280:role/PhotoAppUsersRestAPI-PostHandlerLambdaFunctionRole-lcLqv1PgueSN
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+```
+
+### Test from postman 
+
+![](assets/postman-test-create-user.png)
+
+### Show logs 
+
+```terminal
+> sam logs --name PostHandlerLambdaFunction --stack-name PhotoAppUsersRestAPI
+```
+
+### Delete sam project
+
+```terminal
+> sam delete photo-app-users-rest-api-sam
+	Are you sure you want to delete the stack PhotoAppUsersRestAPI in the region us-east-1 ? [y/N]: y
+	Are you sure you want to delete the folder PhotoAppUsersRestAPI in S3 which contains the artifacts? [y/N]: y
+        - Deleting S3 object with key PhotoAppUsersRestAPI/2687d1b24784b8d29d047d3dd7ca4f8a
+        - Deleting S3 object with key PhotoAppUsersRestAPI/574e372235e779dedb7c43d0d197c748
+        - Deleting S3 object with key PhotoAppUsersRestAPI/7984d12e3203235971046efda61553cc.template
+        - Deleting S3 object with key PhotoAppUsersRestAPI/a9dc1ec7b22baf0633c7d0ffef924335.template
+        - Deleting S3 object with key PhotoAppUsersRestAPI/ab678e58cec260889c50e74cfdd5e3c8.template
+	- Deleting Cloudformation stack PhotoAppUsersRestAPI
+
+Deleted successfully
+```
+Look screenshot of logs
+![](assets/logs.png)
 
 ## IAM - AWS Identity and Access Management
 
